@@ -1,0 +1,13 @@
+{
+	"manifest_version": 2,
+	"name": "Etymology extension",
+	"description": "Put word etymologies in your right click menu!",
+	"version": "0.1",
+	"background": {
+		"scripts": ["etymology.js"]
+	},
+	"permissions": [
+		"contextMenus",
+		"http://en.wiktionary.org/"
+	]
+}
