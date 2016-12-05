@@ -1,6 +1,6 @@
 function getEtymology(word, cb){
 	const xhr = new XMLHttpRequest();
-	const url = 'https://en.wiktionary.org/w/api.php?action=query&origin=*&prop=revisions&rvprop=content&format=json&titles='+word;
+	const url = 'https://en.wiktionary.org/w/api.php?action=query&origin=*&prop=revisions&rvprop=content&format=json&titles='+word.toLowerCase();
 	xhr.onreadystatechange = function(){
 		if(xhr.readyState !== XMLHttpRequest.DONE || xhr.status !== 200) return;
 		const resp = JSON.parse(xhr.responseText);
