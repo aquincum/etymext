@@ -1,6 +1,5 @@
-import {parseTemplate} from './parser.purs'
+import {parsePage, hasError, getError} from './parser.purs'
 
-window.parseTemplate = parseTemplate;
 
 function getEtymology(word, cb){
 	const xhr = new XMLHttpRequest();
@@ -12,7 +11,10 @@ function getEtymology(word, cb){
 		const content = pages[Object.keys(pages)].revisions[0]["*"];
 
 		var structure = parsePage(content);
-		const blends = content.match(/\{\{blend.*\}\}/g);
+		if(hasError(structure)){
+			return alert(getError(structure));
+		}
+/*		const blends = content.match(/\{\{blend.*\}\}/g);
 		if(blends){
 			let res = '';
 			blends.forEach(function(blend){
@@ -24,7 +26,7 @@ function getEtymology(word, cb){
 		}
 		// YEAH YEAH YEAH!
 		cb('No idea!');
-
+*/
 	}
 	xhr.open('GET', url, true)
 	xhr.send();
