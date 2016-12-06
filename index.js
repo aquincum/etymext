@@ -1,4 +1,6 @@
-import {zzz} from './parser.purs'
+import {parseTemplate} from './parser.purs'
+
+window.parseTemplate = parseTemplate;
 
 function getEtymology(word, cb){
 	const xhr = new XMLHttpRequest();
@@ -31,7 +33,7 @@ function getEtymology(word, cb){
 function getEtymologyFromMenu(info){
 	const result = getEtymology(info.selectionText, alert);
 }
-console.log(zzz)
+
 chrome.contextMenus.create({
 	title: 'Etymology for %s',
 	id: 'etymext',

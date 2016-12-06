@@ -24,8 +24,9 @@ var config =  {
     {
       test: /.purs$/,
       loader: 'purs-loader',
+      exclude: /node_modules/,
       query: {
-        src: [ 'bower_components/purescript-*/src/**/*.purs', 'src/**/*.purs' ],
+        src: [ 'bower_components/purescript-*/src/**/*.purs', './*.purs' ],
         bundle: false,
         pscIde: false
       }
