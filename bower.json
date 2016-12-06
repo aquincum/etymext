@@ -1,0 +1,24 @@
+{
+  "name": "etymext",
+  "main": "index.js",
+  "homepage": "https://github.com/aquincum/etymext",
+  "authors": [
+    "Daniel Szeredi <daniel@szeredi.hu>"
+  ],
+  "description": "Etymology Chrome Extension",
+  "keywords": [
+    "wiktionary",
+    "etymology",
+    "chrome",
+    "extension"
+  ],
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
