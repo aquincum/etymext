@@ -4,16 +4,16 @@ module Main  (parseTemplate, Template(..),
 			  Etymology(..), Language(..),
 			  hasError, getError) where
 
---import Control.Alt ((<|>))
+import Control.Alt ((<|>))
 import Data.Either (Either(..))
 import Data.Array (many)
 import Data.Maybe (Maybe(..), isJust)
 import Data.String (fromCharArray)
 import Text.Parsing.Parser (Parser, runParser, parseErrorMessage)
-import Text.Parsing.Parser.String (string, char, noneOf, whiteSpace, anyChar)
-import Text.Parsing.Parser.Combinators (sepBy, manyTill, lookAhead, skipMany)
+import Text.Parsing.Parser.String (string, char, noneOf, anyChar, skipSpaces, satisfy, eof)
+import Text.Parsing.Parser.Combinators (sepBy, manyTill, lookAhead)
 import Text.Parsing.Parser.Token (letter)
-import Prelude (bind, ($), pure, map, (<>), class Show, (==))
+import Prelude (bind, ($), pure, map, (<>), class Show, (==), (*>), (/=), unit)
 import Data.List (List(..), head, tail, concat)
 import Data.List as L
 import Control.MonadZero (guard)
@@ -109,20 +109,27 @@ getAlsos ts = concat $ do
 
 subsection :: Parser String (Maybe Sense)
 subsection = do
-	skipMany whiteSpace
+	let y = unsafePerformEff $ log "beg"
 	string "==="
+	let y2 = unsafePerformEff $ log "mid2"
 	title <- many $ noneOf ['=']
+	let y3 = unsafePerformEff $ log ("mid3, section " <> (fromCharArray title))
 	string "==="
-	dat <- manyTill anyChar (lookAhead (string "==="))
+	let y4 = unsafePerformEff $ log "mid4"
+	--dat <- manyTill anyChar (eof <|> (lookAhead ( string "===" *> satisfy (\c -> c /= '=') *> pure unit)))
+	--eof <|> (char '\n' *> pure unit)
+	dat <- many anyChar
+	let y5 = unsafePerformEff $ log "mid5"
 	pure Nothing
 
 
 section :: Parser String Section
 section = do
-	let y = unsafePerformEff $ log "beg"
 	string "=="
 	langName <- many $ noneOf ['=']
 	string "=="
+	skipSpaces
+	let y = unsafePerformEff $ log ("Doing " <> (fromCharArray langName))
 	senses'<- L.many subsection
 	let x = unsafePerformEff $ log "asdiasdhasid"
 	let lang = getFullNameLanguage $ fromCharArray langName
@@ -131,13 +138,20 @@ section = do
 
 
 
-page :: Parser String Page
+{-page :: Parser String Page
 page = do
 	initTemplates <- L.many template
 	let alsos = getAlsos initTemplates
+	skipSpaces
 	sections <- L.many section
 	pure $ Page {seeAlso: alsos, sections: sections, parsingError: Nothing}
+-}
 
+page :: Parser String Page
+page = do
+	dt <- manyTill anyChar eof
+	let z = unsafePerformEff $ log "UFF"
+	pure $ Page {seeAlso: Nil, sections: Nil, parsingError: Just "upsz"}
 
 parsePage :: String -> Page
 parsePage s = case runParser s page of

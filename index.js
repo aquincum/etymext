@@ -1,6 +1,5 @@
 import {parsePage, hasError, getError} from './parser.purs'
 
-
 function getEtymology(word, cb){
 	const xhr = new XMLHttpRequest();
 	const url = 'https://en.wiktionary.org/w/api.php?action=query&origin=*&prop=revisions&rvprop=content&format=json&titles='+word.toLowerCase();
@@ -33,6 +32,10 @@ function getEtymology(word, cb){
 	xhr.open('GET', url, true)
 	xhr.send();
 }
+
+// debugging purposes
+window.ge = getEtymology
+
 
 function getEtymologyFromMenu(info){
 	const result = getEtymology(info.selectionText, alert);
