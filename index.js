@@ -11,9 +11,11 @@ function getEtymology(word, cb){
 		const content = pages[Object.keys(pages)].revisions[0]["*"];
 
 		var structure = parsePage(content);
+		console.log(structure.value0)
 		if(hasError(structure)){
 			return alert(getError(structure));
 		}
+
 /*		const blends = content.match(/\{\{blend.*\}\}/g);
 		if(blends){
 			let res = '';
