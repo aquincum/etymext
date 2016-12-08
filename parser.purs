@@ -9,19 +9,28 @@ import Data.Either (Either(..))
 import Data.Array (many)
 import Data.Maybe (Maybe(..), isJust)
 import Data.String (fromCharArray)
-import Text.Parsing.Parser (Parser, runParser, parseErrorMessage)
+import Text.Parsing.Parser (ParserT(..), runParserT, parseErrorMessage, ParseError)
 import Text.Parsing.Parser.String (string, char, noneOf, anyChar, skipSpaces, satisfy, eof)
 import Text.Parsing.Parser.Combinators (sepBy, manyTill, lookAhead)
 import Text.Parsing.Parser.Token (letter)
-import Prelude (bind, ($), pure, map, (<>), class Show, (==), (*>), (/=), unit)
+import Prelude (bind, ($), pure, map, (<>), class Show, (==), (*>), (/=), unit, (<<<))
 import Data.List (List(..), head, tail, concat)
 import Data.List as L
 import Control.MonadZero (guard)
+import Control.Monad.Trampoline (Trampoline, runTrampoline)
 --import Data.Char.Unicode (isAlpha, isAlphaNum, isDigit, isHexDigit, isOctDigit, isSpace, isUpper)
 
 -- for debugs
 import Control.Monad.Eff.Console (log)
 import Control.Monad.Eff.Unsafe (unsafePerformEff)
+
+
+-- trampoline parsing
+
+type Parser s a = ParserT s Trampoline a
+
+runParser :: forall s a. s -> Parser s a -> Either ParseError a
+runParser s = runTrampoline <<< runParserT s
 
 
 data Language = English | MiddleEnglish | OldEnglish | UnknownLanguage String
@@ -138,20 +147,21 @@ section = do
 
 
 
-{-page :: Parser String Page
+page :: Parser String Page
 page = do
 	initTemplates <- L.many template
 	let alsos = getAlsos initTemplates
 	skipSpaces
 	sections <- L.many section
 	pure $ Page {seeAlso: alsos, sections: sections, parsingError: Nothing}
--}
 
-page :: Parser String Page
+
+{-page :: Parser String Page
 page = do
 	dt <- manyTill anyChar eof
 	let z = unsafePerformEff $ log "UFF"
 	pure $ Page {seeAlso: Nil, sections: Nil, parsingError: Just "upsz"}
+-}
 
 parsePage :: String -> Page
 parsePage s = case runParser s page of
