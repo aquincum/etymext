@@ -1,8 +1,8 @@
 /*
 STATEs:
-"outside" -- outside of a language
-"language" -- inside a language (==English==)
-"sense" -- inside a sense begun with an etym. header
+'outside' -- outside of a language
+'language' -- inside a language (==English==)
+'sense' -- inside a sense begun with an etym. header
  */
 
 class Template {
@@ -10,7 +10,70 @@ class Template {
 		this.label = head;
 		this.params = tail;
 	}
+	getParam(n){
+		if(this.params.length > n){
+			return this.params[n];
+		}
+		else return null;
+	}
+	isEtyl(){
+		return this.label == 'etyl';
+	}
+	langFrom(){
+		if(!(this.isEtyl() || this.isMention())) return null;
+		return this.getParam(0);
+	}
+	isMention(){
+		return this.label == 'm';
+	}
+	getForm(){
+		if(!this.isMention()) return '';
+		return this.getParam(1);
+	}
+	getMeaning(){
+		if(!this.isMention()) return '';
+		return this.getParam(3);
+	}
+	formatMention(){
+		var rv = this.getForm();
+		if(this.params.length > 3) rv += ' `' + this.getMeaning() + '\'';
+		return rv;
+	}
 }
+
+class Etymology {
+	constructor(etymTempl){
+		this.template = etymTempl;
+		this.language = etymTempl.langFrom();
+		this.forms = [];
+	}
+	addMention(m){
+		if(m.langFrom() == this.language){
+			this.forms.push(m);
+		}
+	}
+	formatMentions(){
+		return this.forms.map(x => x.formatMention()).join(', ');
+	}
+}
+
+function compileTemplates(temps){
+	var currEtym = null;
+	var etyms = [];
+	for(let i = 0; i < temps.length; i++){
+		if(temps[i].isEtyl()){
+			if(currEtym) etyms.push(currEtym);
+			currEtym = new Etymology(temps[i]);
+		}
+		else if(temps[i].isMention() && currEtym){
+			currEtym.addMention(temps[i]);
+		}
+	}
+	if(currEtym) etyms.push(currEtym);
+	return etyms;
+}
+
+
 
 function parseTemplate(template){
 	const inside = template.slice(2,template.length-2);
@@ -32,6 +95,7 @@ function parsePage(content){
 		let lang = line.match(/^==([^=]*)==$/);
 		if(lang){
 			if(language != ''){
+				senses.push(templates);
 				languages.push({
 					language,
 					senses
@@ -55,22 +119,37 @@ function parsePage(content){
 			templates = templates.concat(temps.map(parseTemplate));
 		}
 	}
+	senses.push(templates);
+	languages.push({language, senses});
 	return languages;
 }
 
 
 
 function getEtymology(word, cb){
+	var rv = '';
 	const xhr = new XMLHttpRequest();
 	const url = 'https://en.wiktionary.org/w/api.php?action=query&origin=*&prop=revisions&rvprop=content&format=json&titles='+word.toLowerCase();
 	xhr.onreadystatechange = function(){
 		if(xhr.readyState !== XMLHttpRequest.DONE || xhr.status !== 200) return;
 		const resp = JSON.parse(xhr.responseText);
 		const pages = resp.query.pages;
-		const content = pages[Object.keys(pages)].revisions[0]["*"];
+		const content = pages[Object.keys(pages)].revisions[0]['*'];
 
 		var structure = parsePage(content);
-		structure.map(l => l.senses.map(s => s.map(t => console.log(t.label))))
+		// structure.map(l => l.senses.map(s => s.map(t => console.log(t.label))))
+		const englishSenses = structure.filter(x => x.language=='English')[0].senses;
+		englishSenses.forEach((sense, idx) => {
+			const etyms = compileTemplates(sense);
+			if(etyms.length == 0) return;
+			rv += `Sense ${idx}: `;
+			rv += etyms.map(et => {
+				const forms = et.mentions
+				return `from ${et.language}: ${et.formatMentions()}`;
+			}).join(', ');
+			rv += '\n';
+		})
+		cb(rv);
 
 /*		const blends = content.match(/\{\{blend.*\}\}/g);
 		if(blends){
@@ -91,7 +170,8 @@ function getEtymology(word, cb){
 }
 
 // debugging purposes
-window.ge = getEtymology
+window.ge = getEtymology;
+window.gl = x => getEtymology(x, console.log);
 
 
 function getEtymologyFromMenu(info){
