@@ -5,6 +5,29 @@ STATEs:
 'sense' -- inside a sense begun with an etym. header
  */
 
+import langs from './language-codes-full.json'
+import xlangs from './exceptional-languages.json'
+import etolangs from './etym-only-languages.json'
+
+function findLanguage(l){
+	var ls;
+	ls = langs.filter(x => x.alpha2 == l);
+	if(ls.length == 0){
+		ls = langs.filter(x => x['alpha3-b'] == l);
+	}
+	if(ls.length > 0){
+		return ls[0].English;
+	}
+	if(l in xlangs){
+		return xlangs[l].canonicalName;
+	}
+	if(l in etolangs){
+		return etolangs[l].canonicalName;
+	}
+	else return l;
+}
+
+
 class Template {
 	constructor(head, tail) {
 		this.label = head;
@@ -144,8 +167,9 @@ function getEtymology(word, cb){
 			if(etyms.length == 0) return;
 			rv += `Sense ${idx}: `;
 			rv += etyms.map(et => {
-				const forms = et.mentions
-				return `from ${et.language}: ${et.formatMentions()}`;
+				const forms = et.mentions;
+				const lang = findLanguage(et.language);
+				return `from ${lang}: ${et.formatMentions()}`;
 			}).join(', ');
 			rv += '\n';
 		})

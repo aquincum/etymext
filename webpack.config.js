@@ -20,6 +20,10 @@ var config =  {
       query: {
         presets: ['es2015', 'stage-2']
       }
+    },
+    {
+      test: /\.json$/,
+      loader: 'json-loader'
     }
     ],
     plugins: [
