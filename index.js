@@ -1,4 +1,64 @@
-import {parsePage, hasError, getError} from './parser.purs'
+/*
+STATEs:
+"outside" -- outside of a language
+"language" -- inside a language (==English==)
+"sense" -- inside a sense begun with an etym. header
+ */
+
+class Template {
+	constructor(head, tail) {
+		this.label = head;
+		this.params = tail;
+	}
+}
+
+function parseTemplate(template){
+	const inside = template.slice(2,template.length-2);
+	const parts = inside.split('|');
+	const head = parts[0];
+	const tail = parts.slice(1);
+	return new Template(head, tail);
+}
+
+
+function parsePage(content){
+	const lines = content.split('\n');
+	var language = '';
+	var languages = [];
+	var senses = [];
+	var templates = [];
+	for(let i = 0; i < lines.length; i++){
+		const line = lines[i];
+		let lang = line.match(/^==([^=]*)==$/);
+		if(lang){
+			if(language != ''){
+				languages.push({
+					language,
+					senses
+				})
+			}
+			language = lang[1];
+			senses = [];
+			templates = [];
+			continue;
+		}
+		let sect = line.match(/===*([^=]*)===*/);
+		if(sect){
+			if(line.match(/Etymology/)){
+				senses.push(templates); // close previous sense
+				templates = [];
+			}
+			continue;
+		}
+		let temps = line.match(/\{\{.*?\}\}/g);
+		if(temps) {
+			templates = templates.concat(temps.map(parseTemplate));
+		}
+	}
+	return languages;
+}
+
+
 
 function getEtymology(word, cb){
 	const xhr = new XMLHttpRequest();
@@ -10,10 +70,7 @@ function getEtymology(word, cb){
 		const content = pages[Object.keys(pages)].revisions[0]["*"];
 
 		var structure = parsePage(content);
-		console.log(structure.value0)
-		if(hasError(structure)){
-			return alert(getError(structure));
-		}
+		structure.map(l => l.senses.map(s => s.map(t => console.log(t.label))))
 
 /*		const blends = content.match(/\{\{blend.*\}\}/g);
 		if(blends){

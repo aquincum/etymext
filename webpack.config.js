@@ -20,16 +20,6 @@ var config =  {
       query: {
         presets: ['es2015', 'stage-2']
       }
-    },
-    {
-      test: /.purs$/,
-      loader: 'purs-loader',
-      exclude: /node_modules/,
-      query: {
-        src: [ 'bower_components/purescript-*/src/**/*.purs', './*.purs' ],
-        bundle: false,
-        pscIde: false
-      }
     }
     ],
     plugins: [
