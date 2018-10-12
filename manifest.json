@@ -2,9 +2,9 @@
 	"manifest_version": 2,
 	"name": "Etymology extension",
 	"description": "Put word etymologies in your right click menu!",
-	"version": "0.1",
+	"version": "0.2",
 	"background": {
-		"scripts": ["etymology.js"]
+		"scripts": ["ext.js"]
 	},
 	"permissions": [
 		"contextMenus",

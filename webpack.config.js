@@ -5,32 +5,39 @@ var dir = function(d){
   return path.join(__dirname, d ? d : '');
 };
 
-var config =  {
-  entry: './index.js',
+var extConfig =  {
+  entry: {
+    ext: './index.js',
+  },
   output: {
-    filename: 'etymology.js',
+    filename: '[name].js',
     path: dir('./')
   },
   context: dir(''),
   module: {
-    loaders: [
-    {
-      test: /\.jsx?$/,
-      loader: 'babel',
-      query: {
-        presets: ['es2015', 'stage-2']
+    rules: [{
+      test: /\.(js|jsx)$/,
+      exclude: /node_modules/,
+      use: {
+        loader: 'babel-loader',
+        options: {
+          presets: ['@babel/preset-env']
+        }
       }
     },
+
     {
       test: /\.json$/,
+      exclude: /node_modules/,
       loader: 'json-loader'
     }
-    ],
-    plugins: [
-    ],
-    node: {
-    }
+  ]
   }
 };
 
-module.exports = config;
+var nodeConfig = Object.assign({},extConfig);
+nodeConfig.entry = {etymology: ['babel-polyfill', './cli.js']};
+nodeConfig.target = 'node';
+
+
+module.exports = [extConfig, nodeConfig];
