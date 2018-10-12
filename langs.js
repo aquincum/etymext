@@ -2,7 +2,7 @@ import langs from './language-codes-full.json'
 import xlangs from './exceptional-languages.json'
 import etolangs from './etym-only-languages.json'
 
-function findLanguage(l){
+export function findLanguage(l){
 	var ls;
 	ls = langs.filter(x => x.alpha2 == l);
 	if(ls.length == 0){

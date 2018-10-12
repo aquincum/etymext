@@ -24,12 +24,6 @@ var extConfig =  {
           presets: ['@babel/preset-env']
         }
       }
-    },
-
-    {
-      test: /\.json$/,
-      exclude: /node_modules/,
-      loader: 'json-loader'
     }
   ]
   }

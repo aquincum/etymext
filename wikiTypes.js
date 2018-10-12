@@ -1,4 +1,4 @@
-
+import { findLanguage } from './langs'
 export class Template {
 	constructor(template) {
     const inside = template.slice(2,template.length-2);
@@ -61,7 +61,7 @@ export class Template {
       if(this.isInherited()) s += 'inherited';
       s += ' from ';
     }
-    s += this.langFrom();
+    s += findLanguage(this.langFrom());
     s += ' ';
     s += this.getForm();
     const meaning = this.getMeaning();
