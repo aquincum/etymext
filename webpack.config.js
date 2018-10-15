@@ -13,6 +13,7 @@ var extConfig =  {
     filename: '[name].js',
     path: dir('./')
   },
+  devtool: '#eval-source-map',
   context: dir(''),
   module: {
     rules: [{
@@ -26,6 +27,9 @@ var extConfig =  {
       }
     }
   ]
+  },
+  node: {
+    __dirname: false
   }
 };
 
