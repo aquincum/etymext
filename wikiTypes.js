@@ -47,7 +47,7 @@ export class Template {
     return this.isDerived() || this.isBorrowed() || this.isInherited() || this.label == 'etyl';
   }
 	langFrom(){
-    if(this.label == 'etyl') return this.getParam(0);
+    if(this.label == 'etyl' || this.label == 'm') return this.getParam(0);
 		return this.getParam(1);
   }
 	getForm(){
@@ -91,6 +91,7 @@ export class Template {
 
 const nullEtymology = {
   getParam: () => null,
+  getForm: () => '',
   getNamedParam: () => null,
   isDerived: () => false,
   isBorrowed: () => false,
@@ -142,13 +143,17 @@ export class Sense {
     if(this.templates.length == 0) return nullEtymology;
     const borrows = this.templates.filter(t => t.isBorrowed());
     if(borrows.length > 0){
-      return borrows[0];
+      return borrows[borrows.length - 1];
     }
     const inh = this.templates.filter(t => t.isInherited());
     if(inh.length > 0){
       return inh[inh.length - 1];
     }
     return this.templates[this.templates.length-1];
+  }
+  formsIn(languageCodes){
+    return languageCodes
+      .map(lc => this.templates.filter(t => t.langFrom() == lc && t.isEtyl()))
   }
   static create(obj){
     const s = new Sense();

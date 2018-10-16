@@ -58,4 +58,40 @@ export class Dictionary {
       })
     })
   }
+  countMainOrigins(){
+    const addLangToMap = (acc, me) => {
+      const l = me.langFrom();
+      if(l in acc) acc[l] ++;
+      else acc[l] = 1;
+      return acc;
+    };
+    const mainEtyms =  this.getAllSenses()
+      .map(sense => sense.mainEtymology())
+      .reduce((acc,x) => acc.concat(x), []);
+    // inhs
+    const inheriteds = mainEtyms.filter(me => me.isInherited());
+    const inhMap = inheriteds.reduce(addLangToMap, {});
+    return {
+      inherited: inhMap,
+      borrowed: mainEtyms.filter(me => me.isBorrowed()).reduce(addLangToMap, {}),
+      derived: mainEtyms.filter(me => me.isDerived()).reduce(addLangToMap, {}),
+      etymology: mainEtyms.filter(me => me.label=='etym' || me.label=='m').reduce(addLangToMap, {}),
+    }
+  }
+  generateCognateTable(config){
+    return this.getAllSenses().map(s => [s.word, ...s.formsIn(config.history)]);
+  }
+  getAllSenses(){
+    return this.words
+      .map(word => {
+        var s = word.senses;
+        if(!s) return [];
+        return s.map(ss => {
+          ss.word = word.word;
+          return ss;
+        })
+      })
+      .reduce((acc,x) => acc.concat(x), [])
+      .filter(x => !!x);
+  }
 }
