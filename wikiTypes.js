@@ -171,7 +171,7 @@ export class Word {
   }
   async fetchWiktionary(){
     console.log('fetching', this.word);
-    const page = this.word;
+    const page = encodeURIComponent(this.word);
     const url = 'https://en.wiktionary.org/w/api.php?action=parse&origin=*&prop=sections&redirect=yeah&format=json&page=' + page;
     const response = await axios.get(url);
     if(!response.data.parse){

@@ -60,9 +60,19 @@ async function singleEtymology(argv){
   console.log(senses.map((sense, i) => `Sense ${i}: ${sense.mainEtymology().toString()}`).join('\n'));
 }
 
+
+function cleanInput(input){
+  return input
+    .replace('\n', ' ')
+    .replace(/['":;\.,]/g,'')
+    .replace(/\s+/g, ' ')
+    .toLowerCase();
+}
+
+
 async function bagEtymology(argv){
   const rawInput = await getStdin();
-  const input = rawInput.replace(/\s+/, ' ').replace('\n', '');
+  const input = cleanInput(rawInput);
   const dict = new Dictionary(argv.language);
   await dict.load();
   const words = await Promise.all(input.split(' ').map(dict.fetchWord.bind(dict)));
